@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   NetLab design tokens
+   Theme: student's network ops console — dark, disciplined,
+   one electric-cyan accent reserved for live signals.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* surfaces */
+  --color-terminal: #0a0f16; /* page background        */
+  --color-panel: #0d1420;    /* deep inset panel       */
+  --color-rack: #111a2a;     /* card surface           */
+  --color-rack-hi: #17243b;  /* hovered card surface   */
+
+  /* signal (the one accent) */
+  --color-signal: #38e1ff;   /* live traffic / focus / links */
+  --color-signal-dim: #1db8d4;
+
+  /* state colors (only where they mean something) */
+  --color-ok: #3ddc97;       /* link up / correct answer     */
+  --color-fault: #ff6b6b;    /* link down / wrong answer     */
+  --color-warn: #f5c04e;     /* caution (class D/E, low SNR) */
+
+  /* text */
+  --color-ink: #e8f0f8;      /* primary text  */
+  --color-static: #93a4ba;   /* secondary     */
+  --color-faint: #5d6f85;    /* captions      */
+
+  /* hairlines */
+  --color-line: rgba(148, 184, 224, 0.13);
+
+  /* type */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  /* motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* radius */
+  --radius-card: 14px;
+  --radius-field: 10px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-terminal text-ink font-sans antialiased;
+  }
+
+  ::selection {
+    background: rgb(56 225 255 / 0.28);
+    color: #eafcff;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+
+  /* number inputs: no spinners, values are typed not stepped */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1d2b45;
+    border-radius: 8px;
+    border: 2px solid var(--color-terminal);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #29405f;
+  }
+}
+
+/* blueprint grid — faint routing diagram behind the page */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(56 225 255 / 0.033) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(56 225 255 / 0.033) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* soft radial fade so the grid dissolves toward the edges */
+@utility grid-fade {
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 45%, transparent 100%);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 26px rgb(56 225 255 / 0.5);
+}
+
+@utility panel {
+  background: var(--color-rack);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+/* respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* hide scrollbars on horizontal tab strips while keeping them scrollable */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
