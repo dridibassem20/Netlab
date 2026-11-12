@@ -89,6 +89,17 @@ export function Navbar({
     router.refresh();
   };
 
+  const switchLang = (target: Lang) => {
+    document.cookie = `${LOCALE_COOKIE}=${target};path=/;max-age=31536000;samesite=lax`;
+    const segs = window.location.pathname.split("/");
+    segs[1] = target;
+    router.push(segs.join("/") || `/${target}`);
+  };
+
+  const langClass = lang === "fr"
+    ? "bg-signal/15 text-signal"
+    : "text-faint hover:text-static";
+
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-terminal/80 backdrop-blur-md">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-5">
@@ -99,26 +110,141 @@ export function Navbar({
           </span>
         </Link>
 
+        <div className="flex items-center gap-2">
+          {/* Language switcher - always visible */}
+          <div
+            role="group"
+            aria-label={t.langLabel}
+            className="inline-flex rounded-lg border border-line bg-panel p-0.5"
+          >
+            {["fr", "en"].map((l) => {
+              const lang = l as Lang;
+              return (
+                <button
+                  key={lang}
+                  onClick={() => switchLang(lang)}
+                  aria-pressed={lang === lang}
+                  className={langClass}
+                >
+                  {lang}
+                </button>
+              );
+            })}
+          </div>
+
+          {session ? (
+            <>
+              {session.isAdmin && (
+                <Link
+                  href="/admin"
+                  className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-static transition-colors hover:border-signal/40 hover:text-signal"
+                >
+                  {t.admin}
+                </Link>
+              )}
+              <span className="max-w-[120px] truncate font-mono text-xs text-faint" title={session.name}>
+                {session.name}
+              </span>
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-static transition-colors hover:text-fault"
+                aria-label={t.signOut}
+              >
+                <LogOut size={15} />
+              </button>
+            </>
+          ) : (
+            <Link
+              href={`/${lang}/login`}
+              className="rounded-lg border border-signal/40 bg-signal/10 px-3.5 py-1.5 text-sm font-medium text-signal transition-colors hover:bg-signal/20"
+            >
+              {t.signIn}
+            </Link>
+          )}
+        </div>
+
+        {/* Desktop navigation links */}
         <div className="hidden lg:flex items-center gap-8">
           {LINKS.map((link) => (
-            <Link key={link.key} href={link.href} className="text-sm transition-colors hover:text-signal">
+            <Link
+              key={link.key}
+              href={link.href}
+              className="relative rounded-lg px-3.5 py-2 text-sm transition-colors"
+            >
               {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-2">
-          <button onClick={signOut} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-static transition-colors hover:text-fault">
-            <LogOut size={15} />
-          </button>
-        </div>
-
-        <div className="hidden lg:flex items-center gap-2">
-          <button onClick={() => setOpen(true)} className="rounded-lg p-2 text-static hover:text-ink" aria-label="Open menu">
+        {/* Mobile burger menu button */}
+        <div className="lg:hidden flex items-center gap-2">
+          <button
+            onClick={() => setOpen(true)}
+            className="rounded-lg p-2 text-static hover:text-ink"
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+          >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </nav>
+
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-line bg-terminal/90 backdrop-blur-md"
+          >
+            <div className="flex flex-col gap-1 px-4 py-4 sm:px-5">
+              {LINKS.map((link) => (
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  className="rounded-lg px-3 py-2.5 text-sm"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="mt-2 flex flex-col gap-2 border-t border-line pt-3">
+                {session ? (
+                  <>
+                    {session.isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="rounded-lg px-3 py-2 font-mono text-xs text-signal"
+                      >
+                        {t.admin}
+                      </Link>
+                    )}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-mono text-xs text-faint">
+                        {session.name}
+                      </span>
+                      <button
+                        onClick={signOut}
+                        className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-static hover:text-fault"
+                      >
+                        <LogOut size={15} /> {t.signOut}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href={`/${lang}/login`}
+                    className="block rounded-lg border border-signal/40 bg-signal/10 px-3 py-2.5 text-center text-sm font-medium text-signal"
+                  >
+                    {t.signIn}
+                  </Link>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
