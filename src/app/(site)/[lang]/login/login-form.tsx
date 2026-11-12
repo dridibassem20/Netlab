@@ -34,7 +34,7 @@ export function LoginForm({
   const [notice, setNotice] = useState<string | null>(null);
 
   const go = (target: string) => {
-    const dest = target.startsWith("/") && !target.startsWith("/admin") ? home + target : target;
+    const dest = !target.startsWith("/") ? home + target : target;
     router.push(dest);
     router.refresh();
   };
