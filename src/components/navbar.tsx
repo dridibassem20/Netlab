@@ -110,21 +110,22 @@ export function Navbar({
           </span>
         </Link>
 
-        <div className="flex items-center gap-2">
-          {/* Language switcher - always visible */}
-          <div
-            role="group"
-            aria-label={t.langLabel}
-            className="inline-flex rounded-lg border border-line bg-panel p-0.5"
-          >
-            {["fr", "en"].map((l) => {
-              const lang = l as Lang;
+<div className="flex items-center gap-2">
+          {/* Language switcher - always visible, premium pills */}
+          <div role="group" aria-label={t.langLabel} className="gap-1">
+            {["fr", "en"].map((code) => {
+              const lang = code as Lang;
+              const isActive = lang === lang;
               return (
                 <button
                   key={lang}
                   onClick={() => switchLang(lang)}
-                  aria-pressed={lang === lang}
-                  className={langClass}
+                  aria-pressed={isActive}
+                  className={cn(
+                    "flex-1 rounded-full px-3 py-1.5 text-[10px] uppercase font-mono transition-colors",
+                    isActive ? "bg-signal/20 text-signal" : "text-static hover:text-signal",
+                    "hover:bg-signal/10",
+                  )}
                 >
                   {lang}
                 </button>
